@@ -1,6 +1,5 @@
 class role_fileserver (
   $workgroup            = 'DOMAIN',
-  $valid_users          = '@DOMAIN\"Domain Admins"',
   $server_string        = 'Example Samba Server',
   $interfaces           = 'eth0 lo',
   $security             = 'ads',
@@ -24,6 +23,7 @@ class role_fileserver (
   $password             = 'password',
   $volume_size          = '2048',
   $volume_name,
+  $public_ip            = undef,
   ){
 
   package { 'python-novaclient':
@@ -33,6 +33,16 @@ class role_fileserver (
   file { $path :
     ensure         => 'directory'
   } 
+
+  if ($public_ip){
+    exec { 'updateDNS':
+      command      => "net ads dns register ${fqdn} ${public_ip} -P",
+      path         => "/usr/local/bin/:/bin/:/usr/bin",
+      unless       => "host ${fqdn} | grep -c ${public_ip}",
+      require      => Class['samba::server::ads']
+
+    }
+  }
 
   nova_volume_create { $volume_name :
     ensure         => present,
@@ -82,7 +92,6 @@ class role_fileserver (
     comment           => $sharecomment,
     path              => $path,
     read_only         => $read_only,
-    valid_users       => $valid_users,
   }
 
   if $security == 'ads' {
