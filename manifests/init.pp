@@ -16,13 +16,6 @@ class role_fileserver (
   $disable_spoolss      = 'Yes',
   $printing             = 'bsd',
   $printcap_name        = '/dev/null',
-  $mount_point          = '/data',
-  $controller_ip        = '10.41.1.1',
-  $openstack_username   = 'fileservers',
-  $openstack_tentant    = 'fileservers',
-  $password             = 'password',
-  $volume_size          = '2048',
-  $volume_name,
   $public_ip            = undef,
   ){
 
@@ -42,39 +35,6 @@ class role_fileserver (
       require      => Class['samba::server::ads']
 
     }
-  }
-
-  nova_volume_create { $volume_name :
-    ensure         => present,
-    password       => $password,
-    username       => $openstack_username,
-    tenant         => $openstack_tentant,
-    controller_ip  => $controller_ip,
-    volume_size    => $volume_size,
-    require        => Package['python-novaclient'],
-  }
-
-  nova_volume_attach { $volume_name :
-    ensure         => present,
-    password       => $password,
-    username       => $openstack_username,
-    tenant         => $openstack_tentant,
-    controller_ip  => $controller_ip,
-    instance       => $::fqdn,
-    require        => Nova_volume_create[$volume_name],
-  }
-
-  nova_volume_mount { $volume_name :
-    ensure         => present,
-    password       => $password,
-    username       => $openstack_username,
-    tenant         => $openstack_tentant,
-    controller_ip  => $controller_ip,
-    instance       => $::fqdn,
-    mountpoint     => $mount_point,
-    filesystem     => 'ext4',
-    mount_options  => 'user_xattr,acl',
-    require        => [Nova_volume_attach[$volume_name],File[$path]]
   }
 
   class {'samba::server':

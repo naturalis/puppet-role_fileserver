@@ -27,13 +27,8 @@ All parameters are read from defaults in init.pp and can be overwritten by hiera
   $disable_spoolss      = 'Yes',
   $printing             = 'bsd',
   $printcap_name        = '/dev/null',
-  $mount_point          = '/data',
-  $controller_ip        = '10.41.1.1',
-  $openstack_username   = 'fileservers',
-  $openstack_tentant    = 'fileservers',
   $password             = 'password',
-  $volume_size          = '2048',               ' volume size in GB
-  $volume_name,                                 ' unique volume name
+
 
 ```
 
@@ -44,7 +39,6 @@ role_fileserver
 
 Dependencies
 -------------
-naturalis/puppet-novatools
 naturalis/puppet-samba
 
 
