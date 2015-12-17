@@ -16,7 +16,7 @@ class role_fileserver (
   $disable_spoolss      = 'Yes',
   $printing             = 'bsd',
   $printcap_name        = '/dev/null',
-  $public_ip            = undef,
+  $disable_osprober     = false,
   ){
 
   package { 'python-novaclient':
@@ -27,13 +27,10 @@ class role_fileserver (
     ensure         => 'directory'
   } 
 
-  if ($public_ip){
-    exec { 'updateDNS':
-      command      => "net ads dns register ${fqdn} ${public_ip} -P",
-      path         => "/usr/local/bin/:/bin/:/usr/bin",
-      unless       => "host ${fqdn} | grep -c ${public_ip}",
-      require      => Class['samba::server::ads']
-
+  if ($disable_osprober == true){
+    file { '/usr/bin/os-prober':
+      ensure         => 'file',
+      mode           => '0640'
     }
   }
 
